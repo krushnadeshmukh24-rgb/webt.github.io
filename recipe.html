@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlavorFinds - Recipe Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    .hero-bg {
+      background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        url(https://www.cypressgreen.in/blog/wp-content/uploads/2021/03/food-2048x1366.jpg);
+      background-size: cover;
+      background-position: center;
+    }
+    .recipe-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    /* Modal scroll area */
+    .modal-body { max-height: calc(90vh - 6rem); overflow:auto; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-4">
+          <i data-feather="heart" class="text-red-500"></i>
+          <span class="font-bold text-xl text-gray-800">FlavorFinds</span>
+        </div>
+        <div class="hidden md:flex space-x-8" id="nav-links">
+          <a href="#" class="text-gray-800 hover:text-red-500">Home</a>
+          <a href="#recipes" class="text-gray-800 hover:text-red-500">Recipes</a>
+          <a href="#categories" class="text-gray-800 hover:text-red-500">Categories</a>
+          <a href="#reviews" class="text-gray-800 hover:text-red-500">Reviews</a>
+        </div>
+        <div class="md:hidden">
+          <button id="menu-btn" class="text-gray-800">
+            <i data-feather="menu"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Menu -->
+      <div class="hidden md:hidden" id="mobile-menu">
+        <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-200">Home</a>
+        <a href="#recipes" class="block py-2 px-4 text-sm hover:bg-gray-200">Recipes</a>
+        <a href="#categories" class="block py-2 px-4 text-sm hover:bg-gray-200">Categories</a>
+        <a href="#reviews" class="block py-2 px-4 text-sm hover:bg-gray-200">Reviews</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-bg text-white py-32 px-4">
+    <div class="max-w-4xl mx-auto text-center" data-aos="fade-up">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6">Discover Amazing Recipes</h1>
+      <p class="text-xl mb-8">Find the perfect dish for any occasion with our curated collection of vegetarian, non-vegetarian, and healthy recipes</p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <input id="search-box" type="text" placeholder="Type ingredients (e.g., paneer, tomato)" class="px-4 py-3 rounded-lg w-full sm:w-96 text-gray-800">
+        <button id="search-btn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition duration-300">
+          <i data-feather="search" class="inline mr-2"></i> Search
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Filter -->
+  <section id="categories" class="py-12 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">Browse by Category</h2>
+      <div class="flex flex-wrap justify-center gap-6" data-aos="fade-up" data-aos-delay="100">
+        <button class="category-btn px-6 py-3 rounded-full bg-red-500 text-white font-medium hover:bg-red-600 transition duration-300 flex items-center" data-cat="All">
+          <i data-feather="star" class="mr-2"></i> All Recipes
+        </button>
+        <button class="category-btn px-6 py-3 rounded-full bg-green-500 text-white font-medium hover:bg-green-600 transition duration-300 flex items-center" data-cat="Vegetarian">
+          <i data-feather="leaf" class="mr-2"></i> Vegetarian
+        </button>
+        <button class="category-btn px-6 py-3 rounded-full bg-red-500 text-white font-medium hover:bg-red-600 transition duration-300 flex items-center" data-cat="Non-Veg">
+          <i data-feather="drumstick" class="mr-2"></i> Non-Vegetarian
+        </button>
+        <button class="category-btn px-6 py-3 rounded-full bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition duration-300 flex items-center" data-cat="Dessert">
+          <i data-feather="ice-cream" class="mr-2"></i> Desserts
+        </button>
+        <button class="category-btn px-6 py-3 rounded-full bg-blue-500 text-white font-medium hover:bg-blue-600 transition duration-300 flex items-center" data-cat="Healthy">
+          <i data-feather="heart" class="mr-2"></i> Healthy
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recipes Section -->
+  <section id="recipes" class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">Popular Recipes</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </div>
+  </section>
+
+  <!-- Recipe Modal (hidden by default) -->
+  <div id="recipe-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="bg-white rounded-xl w-full md:w-3/4 lg:w-1/2 overflow-hidden shadow-xl">
+      <div class="flex items-center justify-between p-4 border-b">
+        <h3 id="modal-title" class="text-xl font-bold"></h3>
+        <button id="modal-close" class="text-gray-600 hover:text-gray-900" aria-label="Close modal">
+          <i data-feather="x"></i>
+        </button>
+      </div>
+      <div class="modal-body p-4">
+        <img id="modal-img" src="" alt="" class="w-full h-48 object-cover rounded-md mb-4">
+        <p id="modal-desc" class="text-gray-700 mb-4"></p>
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2">Ingredients</h4>
+          <ul id="modal-ingredients" class="list-disc ml-5 text-gray-700"></ul>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2">Step-by-step</h4>
+          <div class="mb-3 border rounded p-3">
+            <div id="step-view" class="flex items-start gap-4">
+              <div class="flex-shrink-0">
+                <span id="step-number" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-800 font-bold">1</span>
+              </div>
+              <div class="flex-1">
+                <p id="step-text" class="text-gray-800"></p>
+                <div class="mt-3 flex gap-2">
+                  <button id="prev-step" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50" disabled>
+                    <i data-feather="chevrons-left" class="inline mr-1"></i> Prev
+                  </button>
+                  <button id="next-step" class="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600">
+                    Next <i data-feather="chevrons-right" class="inline ml-1"></i>
+                  </button>
+                  <div class="ml-auto text-sm text-gray-600" id="step-counter"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ol id="modal-steps" class="list-decimal ml-6 text-gray-700"></ol>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 p-4 border-t">
+        <button id="modal-close-2" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Close</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Customer Reviews Section -->
+<section id="reviews" class="py-16 bg-white">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">Customer Reviews</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="100">
+      <!-- Review Card 1 -->
+      <div class="bg-gray-50 p-6 rounded-xl shadow hover:shadow-lg transition">
+        <div class="flex items-center mb-3">
+          <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="user" class="w-12 h-12 rounded-full mr-3">
+          <div>
+            <h4 class="font-semibold">Sharon Sarosh</h4>
+            <p class="text-sm text-gray-500">Food Blogger</p>
+          </div>
+        </div>
+        <p class="text-gray-700 mb-3">“I tried the Shahi Paneer recipe and it was absolutely delicious. Easy to follow and turned out restaurant-style!”</p>
+        <div class="flex text-yellow-400"><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i></div>
+      </div>
+      <!-- Review Card 2 -->
+      <div class="bg-gray-50 p-6 rounded-xl shadow hover:shadow-lg transition">
+        <div class="flex items-center mb-3">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="user" class="w-12 h-12 rounded-full mr-3">
+          <div>
+            <h4 class="font-semibold">Carl Fernandes</h4>
+            <p class="text-sm text-gray-500">Working Professional</p>
+          </div>
+        </div>
+        <p class="text-gray-700 mb-3">“Butter Chicken turned out amazing. My family loved it. The step-by-step guide was really helpful.”</p>
+        <div class="flex text-yellow-400"><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i></div>
+      </div>
+      <!-- Review Card 3 -->
+      <div class="bg-gray-50 p-6 rounded-xl shadow hover:shadow-lg transition">
+        <div class="flex items-center mb-3">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="user" class="w-12 h-12 rounded-full mr-3">
+          <div>
+            <h4 class="font-semibold">Amy Jenner</h4>
+            <p class="text-sm text-gray-500">Home Cook</p>
+          </div>
+        </div>
+        <p class="text-gray-700 mb-3">“Paneer Butter Masala recipe was easy to follow and tasted fantastic! Highly recommend it for beginners.”</p>
+        <div class="flex text-yellow-400"><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i><i data-feather="star"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-16 bg-red-500 text-white">
+    <div class="max-w-4xl mx-auto px-4 text-center" data-aos="fade-up">
+        <h2 class="text-3xl font-bold mb-4">Get New Recipes Weekly</h2>
+        <p class="text-xl mb-8">Subscribe to our newsletter and receive the latest recipes directly in your inbox</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <input type="email" placeholder="Your email address" class="px-4 py-3 rounded-lg w-full sm:w-96 text-gray-800">
+            <button class="bg-white hover:bg-gray-100 text-red-500 px-6 py-3 rounded-lg font-semibold transition duration-300">
+                Subscribe
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <i data-feather="heart" class="text-red-500"></i>
+                    <span class="font-bold text-xl">FlavorFinds</span>
+                </div>
+                <p class="text-gray-400">Discover the joy of cooking with our curated collection of delicious recipes from around the world.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition">Home</a></li>
+                    <li><a href="#recipes" class="text-gray-400 hover:text-white transition">Recipes</a></li>
+                    <li><a href="#categories" class="text-gray-400 hover:text-white transition">Categories</a></li>
+                    <li><a href="#reviews" class="text-gray-400 hover:text-white transition">Reviews</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Categories</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition">Vegetarian</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition">Non-Vegetarian</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition">Desserts</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition">Quick Meals</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg mb-4">Connect</h4>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i data-feather="youtube"></i></a>
+                </div>
+                <p class="text-gray-400 mt-4">contact@flavorfinds.com</p>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+            <p>© 2025 FlavorFinds. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    AOS.init({ duration: 800, easing: 'ease-in-out', once: true });
+    feather.replace();
+
+    // Mobile menu toggle
+    document.getElementById('menu-btn').addEventListener('click', function() {
+        var menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    });
+    
+    // Recipe Data
+    const recipes = [
+      {
+        name: "Chicken Biryani", type: "Non-Veg", time: "60 mins", rating: 4.8, img: "https://img.freepik.com/premium-photo/traditional-kerala-style-chicken-biryani-with-accompaniments-white-background_1105604-28055.jpg?w=2000",
+        desc: "Aromatic basmati rice layered with marinated chicken and spices.",
+        ingredients: ["chicken", "rice", "onion", "yogurt", "spices", "mint", "coriander", "saffron"],
+        steps: [
+          "Marinate chicken with yogurt, ginger-garlic paste, turmeric, red chili powder and salt. Keep for 30 mins.",
+          "Fry thinly sliced onions until golden and set half aside for garnish.",
+          "Parboil basmati rice with whole spices (bay leaf, cloves, cardamom) until 70% cooked; drain.",
+          "Layer the chicken in a heavy-bottomed pot, top with rice, fried onions, chopped mint, coriander and saffron milk.",
+          "Seal the pot and cook on low heat (dum) for 20-25 minutes. Rest 10 minutes, then fluff and serve."
+        ]
+      },
+      {
+        name: "Shahi Paneer", type: "Vegetarian", time: "45 mins", rating: 4.7, img: "https://spicemastermarsden.com.au/wp-content/uploads/2022/02/Shahi-Paneer.jpg",
+        desc: "Creamy paneer in a rich tomato and cashew gravy.",
+        ingredients: ["paneer", "tomato", "cashew", "cream", "onion", "spices"],
+        steps: [
+          "Soak cashews in hot water for 15 minutes and grind to a smooth paste.",
+          "Sauté finely chopped onions until translucent, add ginger-garlic paste and cook.",
+          "Add tomato puree and cook until oil separates; add spices and cashew paste.",
+          "Add paneer cubes and simmer for 5-6 minutes, then stir in cream before serving."
+        ]
+      },
+      {
+        name: "Butter Chicken", type: "Non-Veg", time: "50 mins", rating: 4.9, img: "https://amritsr.com/wp-content/uploads/2021/10/butter-chicken-recipe.jpg",
+        desc: "Tender chicken in a creamy tomato-based sauce.",
+        ingredients: ["chicken", "butter", "tomato", "cream", "spices"],
+        steps: [
+          "Marinate chicken in yogurt, lemon, ginger-garlic paste and spices for at least 30 minutes.",
+          "Pan-sear or grill the chicken pieces until slightly charred and set aside.",
+          "Make a tomato-onion gravy, simmer with butter and cream, then add cooked chicken and cook 8-10 minutes.",
+          "Garnish with butter and dried fenugreek (kasuri methi)."
+        ]
+      },
+      {
+        name: "Chole Bhature", type: "Vegetarian", time: "40 mins", rating: 4.6, img: "https://media.vogue.in/wp-content/uploads/2020/08/chole-bhature-recipe.jpg",
+        desc: "Spicy chickpeas served with fluffy fried bread.",
+        ingredients: ["chickpeas", "flour", "tomato", "spices", "ginger", "garam masala"],
+        steps: [
+          "Soak chickpeas overnight and pressure-cook until soft.",
+          "Prepare a masala by frying onions, ginger-garlic, and tomatoes; add spices.",
+          "Add cooked chickpeas to the masala and simmer until flavors meld.",
+          "Make bhature dough with flour and curd, rest, roll into discs and deep-fry until puffy and golden."
+        ]
+      },
+      {
+        name: "Fish Curry", type: "Non-Veg", time: "35 mins", rating: 4.5, img: "https://img.freepik.com/premium-photo/spicy-fish-curry-seer-fish-curry-traditional-indian-fish-curry-white-background_781325-3749.jpg",
+        desc: "Delicious fish cooked in a tangy spiced curry.",
+        ingredients: ["fish", "tomato", "onion", "spices", "tamarind"],
+        steps: [
+          "Marinate fish lightly with turmeric and salt and shallow fry until just cooked; set aside.",
+          "Sauté onions and tomatoes to make a tangy masala; add spice powders.",
+          "Add water or coconut milk, bring to a simmer, then add fried fish pieces and cook for 5-7 minutes.",
+          "Finish with lemon or tamarind for tang and garnish with coriander."
+        ]
+      },
+      {
+        name: "Paneer Tikka", type: "Vegetarian", time: "30 mins", rating: 4.8, img: "https://tse4.mm.bing.net/th/id/OIP.g5o6HpAnJD02XnZlgT58FwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc: "Grilled paneer cubes marinated in yogurt and spices.",
+        ingredients: ["paneer", "yogurt", "capsicum", "spices"],
+        steps: [
+          "Cut paneer and veggies into cubes and marinate in spiced yogurt for 30 minutes.",
+          "Thread paneer and vegetables onto skewers.",
+          "Grill or bake at high heat for 10-15 minutes, turning occasionally and basting with oil.",
+          "Serve hot with mint chutney."
+        ]
+      },
+      {
+        name: "Mutton Rogan Josh", type: "Non-Veg", time: "70 mins", rating: 4.7, img: "https://tse2.mm.bing.net/th/id/OIP.sZJMuDAqLZXtns2bssLZ0QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc: "Slow-cooked lamb curry with aromatic spices.",
+        ingredients: ["mutton", "onion", "yogurt", "spices"],
+        steps: [
+          "Brown mutton pieces in oil and set aside.",
+          "Fry onions until caramelized, add ginger-garlic and spices.",
+          "Add browned mutton, yogurt and water, then simmer on low heat until tender (45-60 mins) or pressure cook.",
+          "Finish with garam masala and garnish with coriander."
+        ]
+      },
+      {
+        name: "Veg Pulao", type: "Vegetarian", time: "25 mins", rating: 4.4, img: "https://tse2.mm.bing.net/th/id/OIP.qoL1OitOC0oRO6A-_jKa6QHaLG?rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc: "Fragrant rice cooked with vegetables and mild spices.",
+        ingredients: ["rice", "carrot", "peas", "beans", "spices"],
+        steps: [
+          "Sauté whole spices (cumin, bay leaf, cloves) in ghee or oil.",
+          "Add vegetables and cook briefly, then add washed rice and water.",
+          "Cover and cook on low heat until rice is done. Fluff with a fork and serve."
+        ]
+      },
+      {
+        name: "Gulab Jamun", type: "Dessert", time: "30 mins", rating: 4.9, img: "https://recipes.net/wp-content/uploads/2023/05/gulab-jamun-recipe_9fb159dc2674f395436a64666227c988-768x768.jpeg",
+        desc: "Soft milk balls soaked in fragrant sugar syrup.",
+        ingredients: ["milk solids/khoya", "flour", "sugar", "cardamom"],
+        steps: [
+          "Make a smooth dough from khoya and a little flour; shape into small balls.",
+          "Deep-fry the balls on low-medium heat until golden.",
+          "Prepare sugar syrup flavored with cardamom and rose water.",
+          "Soak fried balls in warm syrup for at least 1 hour and serve."
+        ]
+      },
+      {
+        name: "Rasgulla", type: "Dessert", time: "40 mins", rating: 4.8, img: "https://tse1.mm.bing.net/th/id/OIP.5uTzPIdc5gRVQToqtCuiAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc: "Spongy cottage cheese balls in light sugar syrup.",
+        ingredients: ["paneer", "sugar", "cardamom"],
+        steps: [
+          "Make fresh chenna (paneer) by curdling milk; drain well and knead to a smooth dough.",
+          "Shape into small smooth balls without cracks.",
+          "Boil balls in light sugar syrup for 15-20 minutes until spongy and doubled in size.",
+          "Cool and serve chilled or at room temperature."
+        ]
+      },
+      {
+        name: "Fruit Salad", type: "Healthy", time: "15 mins", rating: 4.5, img: "https://tse3.mm.bing.net/th/id/OIP.anzVNR_BfV97CpZqXsVzawHaJB?rs=1&pid=ImgDetMain&o=7&rm=3",
+        desc: "Refreshing mix of seasonal fruits with honey and lemon.",
+        ingredients: ["kiwi", "banana", "blueberry", "orange", "honey"],
+        steps: [
+          "Chop all fruits into bite-sized pieces.",
+          "Mix honey, lemon juice and a pinch of salt to make a dressing.",
+          "Toss fruits with dressing and chill before serving."
+        ]
+      },
+      {
+        name: "Grilled Salmon", type: "Healthy", time: "25 mins", rating: 4.7, img: "https://www.ambitiouskitchen.com/wp-content/uploads/2021/06/How-to-Grill-Salmon-7.jpg",
+        desc: "Salmon fillets grilled with olive oil and herbs.",
+        ingredients: ["salmon", "olive oil", "lemon", "herbs", "salt"],
+        steps: [
+          "Pat salmon dry and marinate briefly with olive oil, lemon zest, herbs and salt.",
+          "Preheat grill or pan to high heat and cook salmon 4-6 mins per side depending on thickness.",
+          "Rest for a few minutes and serve with lemon wedges."
+        ]
+      },
+    ];
+
+    // Render Recipes
+    function renderRecipes(list) {
+      const container = document.querySelector("#recipes .grid");
+      container.innerHTML = "";
+      list.forEach(r => {
+        const globalIndex = recipes.findIndex(item => item.name === r.name);
+        container.innerHTML += `
+          <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
+            <img src="${r.img}" alt="${r.name}" class="w-full h-48 object-cover cursor-pointer open-card" data-idx="${globalIndex}">
+            <div class="p-6">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-semibold px-3 py-1 rounded-full
+                  ${r.type === "Vegetarian" ? "bg-green-100 text-green-800" :
+                    r.type === "Dessert" ? "bg-yellow-100 text-yellow-800" :
+                    r.type === "Healthy" ? "bg-blue-100 text-blue-800" :
+                    "bg-red-100 text-red-800"}">${r.type}</span>
+                <div class="flex items-center"> <i data-feather="clock" class="w-4 h-4 mr-1"></i> <span class="text-sm text-gray-600">${r.time}</span> </div>
+              </div>
+              <h3 class="text-xl font-bold mb-2">${r.name}</h3>
+              <p class="text-gray-600 mb-4">${r.desc}</p>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center"> <i data-feather="star" class="text-yellow-500 mr-1"></i> <span class="font-medium">${r.rating}</span> </div>
+                <button class="view-recipe-btn text-red-500 hover:text-red-600 font-medium flex items-center" data-idx="${globalIndex}"> View Recipe <i data-feather="arrow-right" class="ml-2 w-4 h-4"></i> </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      feather.replace();
+      attachRecipeClickHandlers();
+    }
+
+    // Attach click handlers
+    function attachRecipeClickHandlers() {
+      document.querySelectorAll(".view-recipe-btn, .open-card").forEach(el => {
+        el.addEventListener("click", () => {
+          const idx = Number(el.getAttribute("data-idx"));
+          openModal(idx);
+        });
+      });
+    }
+
+    // Modal logic
+    const modal = document.getElementById("recipe-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalImg = document.getElementById("modal-img");
+    const modalDesc = document.getElementById("modal-desc");
+    const modalIngredients = document.getElementById("modal-ingredients");
+    const modalStepsOL = document.getElementById("modal-steps");
+    const stepNumber = document.getElementById("step-number");
+    const stepText = document.getElementById("step-text");
+    const prevBtn = document.getElementById("prev-step");
+    const nextBtn = document.getElementById("next-step");
+    const stepCounter = document.getElementById("step-counter");
+    let currentSteps = [];
+    let currentStepIndex = 0;
+
+    function openModal(recipeIndex) {
+      const r = recipes[recipeIndex];
+      if (!r) return;
+      modalTitle.textContent = r.name;
+      modalImg.src = r.img;
+      modalImg.alt = r.name;
+      modalDesc.textContent = r.desc;
+      modalIngredients.innerHTML = r.ingredients.map(i => `<li>${i}</li>`).join('');
+      modalStepsOL.innerHTML = r.steps.map(s => `<li class="mb-2">${s}</li>`).join('');
+      currentSteps = r.steps;
+      currentStepIndex = 0;
+      updateStepViewer();
+      modal.classList.remove("hidden");
+      modal.classList.add("flex"); // Use flex to center it
+      document.body.classList.add("overflow-hidden");
+      feather.replace();
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    function updateStepViewer() {
+      const total = currentSteps.length;
+      if (total === 0) {
+        document.getElementById('step-view').style.display = 'none';
+        return;
+      }
+      document.getElementById('step-view').style.display = 'flex';
+      stepNumber.textContent = (currentStepIndex + 1).toString();
+      stepText.textContent = currentSteps[currentStepIndex];
+      stepCounter.textContent = `${currentStepIndex + 1} of ${total}`;
+      prevBtn.disabled = currentStepIndex === 0;
+      nextBtn.disabled = currentStepIndex === total - 1;
+    }
+
+    prevBtn.addEventListener("click", () => { if (currentStepIndex > 0) { currentStepIndex--; updateStepViewer(); } });
+    nextBtn.addEventListener("click", () => { if (currentStepIndex < currentSteps.length - 1) { currentStepIndex++; updateStepViewer(); } });
+    document.getElementById("modal-close").addEventListener("click", closeModal);
+    document.getElementById("modal-close-2").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => {
+      if (modal.classList.contains("hidden")) return;
+      if (e.key === "Escape") closeModal();
+      if (e.key === "ArrowRight" && !nextBtn.disabled) nextBtn.click();
+      if (e.key === "ArrowLeft" && !prevBtn.disabled) prevBtn.click();
+    });
+
+    // Ingredient Search
+    document.getElementById("search-btn").addEventListener("click", () => {
+      const raw = document.getElementById("search-box").value.trim().toLowerCase();
+      if (!raw) { renderRecipes(recipes); return; }
+      const query = raw.split(",").map(s => s.trim()).filter(Boolean);
+      const filtered = recipes.filter(r => query.every(q => r.ingredients.some(ing => ing.toLowerCase().includes(q))));
+      renderRecipes(filtered.length > 0 ? filtered : []);
+    });
+
+    // Category buttons
+    document.querySelectorAll(".category-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cat = btn.getAttribute("data-cat");
+        renderRecipes(cat === "All" ? recipes : recipes.filter(r => r.type === cat));
+        btn.classList.add("ring-2", "ring-offset-2", "ring-red-300");
+        setTimeout(() => btn.classList.remove("ring-2", "ring-offset-2", "ring-red-300"), 600);
+      });
+    });
+
+    // Initial Load
+    renderRecipes(recipes);
+</script>
+
+</body>
+</html>
